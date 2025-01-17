@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Neovim swap and backup files
+.vim*
+.nvim*
+*.un~  # vim backups
+
+# Logs and temporary files
+*.log
+*.log.*
+*.tmp
+
+# Specific to Git
+*.diff
+*.patch
+
+# System-specific files
+Thumbs.db
+
+# SSH and GPG keys (NEVER ADD!!)
+*.pub
+id_rsa
+id_rsa.pub
+id_dsa
+id_dsa.pub
+
+# Other hidden files you don’t want in version control
+.cache/
+*.pyc
