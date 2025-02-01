@@ -10,7 +10,7 @@ plugins=(
     you-should-use
     git
     zsh-bat
-    bunlder
+    bundler
     dotenv
     macos
     rake
@@ -21,7 +21,7 @@ plugins=(
     pip
     python
     npm
-    nvi
+    nvm
     zsh-syntax-highlighting
     zsh-autosuggestions
 )
