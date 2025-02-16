@@ -107,8 +107,8 @@ automatically-unhide-macos-hidden-apps = true
     alt-l = 'focus right --boundaries all-monitors-outer-frame --boundaries-action stop'
 
     # Move windows between workspaces
-    cmd-ctrl-h = ['move-node-to-workspace prev --wrap-around', 'workspace prev']
-    cmd-ctrl-l = ['move-node-to-workspace next --wrap-around', 'workspace next']
+    cmd-ctrl-h = ['move-node-to-workspace prev', 'workspace prev --wrap-around']
+    cmd-ctrl-l = ['move-node-to-workspace next', 'workspace next --wrap-around']
 
     # Move windows around
     alt-ctrl-h = 'move left'
