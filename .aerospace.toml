@@ -86,14 +86,12 @@ automatically-unhide-macos-hidden-apps = false
 
     alt-b = 'workspace B' # for Browser
     alt-c = 'workspace C' # for Chat (Whatsapp, Teams)
-    alt-e = 'workspace E' # for Finder
     alt-n = 'workspace N' # for Notes (OneNote)
     alt-t = 'workspace T' # for Terminal (Ghostty, iTerm2)
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
     alt-shift-b = 'move-node-to-workspace B' # for Browser
     alt-shift-c = 'move-node-to-workspace C' # for Chat (Whatsapp, Teams)
-    alt-shift-e = 'move-node-to-workspace E' # for Finder
     alt-shift-n = 'move-node-to-workspace N' # for Notes (OneNote)
     alt-shift-t = 'move-node-to-workspace T' # for Terminal (Ghostty, iTerm2)
 
@@ -159,7 +157,11 @@ run = "move-node-to-workspace C"
 # if.app-id = 'ONENOTE!!'
 # run = "move-node-to-workspace N"
 
-# Finder
+# Finder and system preferences
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
-run = "move-node-to-workspace E"
+run = "layout floating"
+
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = "layout floating"
