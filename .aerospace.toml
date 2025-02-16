@@ -7,10 +7,10 @@ start-at-login = true
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
 
-accordion-padding = 30
+accordion-padding = 10
 
 # Possible values: tiles|accordion
-default-root-container-layout = 'tiles'
+default-root-container-layout = 'accordion'
 
 # Possible values: horizontal|vertical|auto
 # 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,
@@ -21,7 +21,7 @@ default-root-container-orientation = 'auto'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
-automatically-unhide-macos-hidden-apps = false
+automatically-unhide-macos-hidden-apps = true
 
 # Possible values: (qwerty|dvorak)
 [key-mapping]
@@ -41,10 +41,24 @@ automatically-unhide-macos-hidden-apps = false
     outer.top =        0
     outer.right =      0
 
+# Monitor gets all workspaces
+# Laptop gets one workspace for video calls
+[workspace-to-monitor-force-assignment]
+    1 = 1      
+    2 = 1      
+    3 = 1     
+    4 = 1      
+    5 = 5      
+    8 = 1      
+    9 = 1
+    0 = 2
+
 # 'main' binding mode declaration
 # 'main' binding mode must be always presented
 [mode.main.binding]
 
+
+    # ------------------------------------------
     # All possible keys:
     # - Letters.        a, b, c, ..., z
     # - Numbers.        0, 1, 2, ..., 9
@@ -59,50 +73,68 @@ automatically-unhide-macos-hidden-apps = false
 
     # All possible modifiers: cmd, alt, ctrl, shift
 
-    alt-enter = '''exec-and-forget osascript -e '
-    tell application "Terminal"
-        do script
-        activate
-    end tell'
-    '''
+    # # Launch a terminal like in i3
+    # alt-enter = '''exec-and-forget osascript -e '
+    # tell application "Terminal"
+    #     do script
+    #     activate
+    # end tell'
+    # '''
 
-    alt-slash = 'layout tiles horizontal vertical'
-    alt-comma = 'layout accordion horizontal vertical'
+    # ------------------------------------------
 
-    alt-h = 'focus left'
-    alt-j = 'focus down'
-    alt-k = 'focus up'
-    alt-l = 'focus right'
+    # Space     1       2       3       4       5       8       9           0 (laptop)
+    # Personal  Nvim    Web     AI      WA      Finder  Misc    Misc        Webcam
+    # Work      Nvim    Web     AI      Comms   Notes   Finder  Post/DB     Webcam
+    
+    cmd-1 = 'workspace 1'
+    cmd-2 = 'workspace 2'
+    cmd-3 = 'workspace 3'
+    cmd-4 = 'workspace 4'
+    cmd-5 = 'workspace 5'
+    cmd-8 = 'workspace 8'
+    cmd-9 = 'workspace 9'
+    cmd-0 = 'workspace 0'
+
+    # Cycle between workspaces
+    cmd-h = 'workspace prev --wrap-around'
+    cmd-l = 'workspace next --wrap-around'
+
+    # Change focus between windows
+    alt-h = 'focus left --boundaries all-monitors-outer-frame --boundaries-action stop'
+    alt-j = 'focus down --boundaries all-monitors-outer-frame --boundaries-action stop'
+    alt-k = 'focus up --boundaries all-monitors-outer-frame --boundaries-action stop'
+    alt-l = 'focus right --boundaries all-monitors-outer-frame --boundaries-action stop'
+
+    # Move windows between workspaces
+    cmd-ctrl-h = ['move-node-to-workspace prev --wrap-around', 'workspace prev']
+    cmd-ctrl-l = ['move-node-to-workspace next --wrap-around', 'workspace next']
+
+    # Move windows around
+    alt-ctrl-h = 'move left'
+    alt-ctrl-j = 'move down'
+    alt-ctrl-k = 'move up'
+    alt-ctrl-l = 'move right'
+    
+    # Focus monitors 
+    cmd-i = 'focus-monitor 1'
+    cmd-o = 'focus-monitor 2'
+    
+    # Move windows to specific monitor
+    cmd-ctrl-i = ['move-node-to-monitor 1', 'focus-monitor 1']
+    cmd-ctrl-o = ['move-node-to-monitor 2', 'focus-monitor 2']
+    
+    #Other usefull commands
+    alt-tab = 'workspace-back-and-forth'
     alt-f = 'fullscreen'
-
-    alt-shift-h = 'move left'
-    alt-shift-j = 'move down'
-    alt-shift-k = 'move up'
-    alt-shift-l = 'move right'
-
     alt-minus = 'resize smart -50'
     alt-equal = 'resize smart +50'
-
-
-    alt-b = 'workspace B' # for Browser
-    alt-c = 'workspace C' # for Chat (Whatsapp, Teams)
-    alt-n = 'workspace N' # for Notes (OneNote)
-    alt-t = 'workspace T' # for Terminal (Ghostty, iTerm2)
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-    alt-shift-b = 'move-node-to-workspace B' # for Browser
-    alt-shift-c = 'move-node-to-workspace C' # for Chat (Whatsapp, Teams)
-    alt-shift-n = 'move-node-to-workspace N' # for Notes (OneNote)
-    alt-shift-t = 'move-node-to-workspace T' # for Terminal (Ghostty, iTerm2)
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
-    alt-tab = 'workspace-back-and-forth'
-    # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
-    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+    alt-e = 'balance-sizes'
+    cmd-slash = 'layout horizontal vertical'
+    cmd-period = 'layout tiles accordion'
     
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#mode
-    alt-shift-semicolon = 'mode service'
+    # Change between modes
+    cmd-semicolon = 'mode service'
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -123,45 +155,3 @@ automatically-unhide-macos-hidden-apps = false
     down = 'volume down'
     up = 'volume up'
     shift-down = ['volume set 0', 'mode main']
-
-
-# Browser
-[[on-window-detected]]
-if.app-id = 'com.google.Chrome'
-run = "move-node-to-workspace B"
-
-# Terminal - ghostty (personal), iterm2 (work)
-[[on-window-detected]]
-if.app-id = 'com.mitchellh.ghostty'
-run = "move-node-to-workspace T"
-
-# [[on-window-detected]]
-# if.app-id = 'ITERM2!!'
-# run = "move-node-to-workspace T"
-
-# Chat - whatsapp (personal), teams (work), ChatGPT
-[[on-window-detected]]
-if.app-id = 'net.whatsapp.Whatsapp'
-run = "move-node-to-workspace C"
-
-[[on-window-detected]]
-if.app-id = 'com.openai.chat'
-run = "move-node-to-workspace C"
-
-# [[on-window-detected]]
-# if.app-id = 'TEAMS!!'
-# run = "move-node-to-workspace C"
-
-# # Notes - OneNote (work)
-# [[on-window-detected]]
-# if.app-id = 'ONENOTE!!'
-# run = "move-node-to-workspace N"
-
-# Finder and system preferences
-[[on-window-detected]]
-if.app-id = 'com.apple.finder'
-run = "layout floating"
-
-[[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
-run = "layout floating"
