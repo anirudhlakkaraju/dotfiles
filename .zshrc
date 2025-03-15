@@ -4,6 +4,10 @@ export PATH=$HOME/bin:$HOME/.local/bin:/user/local/bin:$PATH
 # PATH to your Oh My Zsh Installation
 export ZSH="$HOME/.oh-my-zsh"
 
+# PATH to Go bin
+export GOBIN=$HOME/go/bin
+export PATH=$GOBIN:$PATH
+
 ZSH_THEME="robbyrussell"
 
 plugins=(
