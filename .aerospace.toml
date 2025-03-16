@@ -124,13 +124,13 @@ automatically-unhide-macos-hidden-apps = true
     cmd-ctrl-i = ['move-node-to-monitor 1', 'focus-monitor 1']
     cmd-ctrl-o = ['move-node-to-monitor 2', 'focus-monitor 2']
     
-    #Other usefull commands
+    # Other useful commands
     alt-tab = 'workspace-back-and-forth'
     alt-f = 'fullscreen'
     alt-minus = 'resize smart -50'
     alt-equal = 'resize smart +50'
     alt-e = 'balance-sizes'
-    cmd-slash = 'layout horizontal vertical'
+    cmd-comma = 'layout horizontal vertical'
     cmd-period = 'layout tiles accordion'
     
     # Change between modes
