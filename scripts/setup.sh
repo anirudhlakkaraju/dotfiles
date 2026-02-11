@@ -2,36 +2,63 @@
 
 set -e
 
+# ──────────────────────────────────────────────
+# Colors and formatting
+# ──────────────────────────────────────────────
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
 DOTFILES="$HOME/dotfiles"
 BACKUP_DIR="$DOTFILES/backups"
 
-# ──────────────────────────────────────────────
-# Pre-flight checks
+# Helper functions for pretty output
+info()    { echo -e "  ${BLUE}::${NC} $1"; }
+ok()      { echo -e "  ${GREEN}[ok]${NC} $1"; }
+warn()    { echo -e "  ${YELLOW}[!!]${NC} $1"; }
+fail()    { echo -e "  ${RED}[!!]${NC} $1"; exit 1; }
+section() { echo -e "\n${BOLD}$1${NC}"; echo -e "${DIM}────────────────────────────────────────${NC}"; }
+
+# Run a command silently, show output only on failure
+quiet() {
+    local output
+    if output=$("$@" 2>&1); then
+        return 0
+    else
+        echo "$output"
+        return 1
+    fi
+}
+
 # ──────────────────────────────────────────────
 
-# Ensure right OS
+section "Pre-flight"
+
 os=$(uname)
 if [ "$os" != "Darwin" ]; then
-    echo "Error: This script only supports macOS"
-    exit 1
+    fail "This script only supports macOS"
 fi
-echo "✓ macOS detected"
+ok "macOS detected"
 
-# Ensure Homebrew is installed
 if ! command -v brew &>/dev/null; then
-    echo "Homebrew not found"
-    echo "Installing Homebrew..."
+    info "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # Add brew to PATH for the rest of this script
     eval "$(/opt/homebrew/bin/brew shellenv)"
+    ok "Homebrew installed"
+else
+    ok "Homebrew"
 fi
 
-# Create .config dir if not present
 mkdir -p "$HOME/.config"
 
 # ──────────────────────────────────────────────
-# Install tools via Homebrew
-# ──────────────────────────────────────────────
+
+section "Package Installations"
 
 brew_packages=(
     "neovim"
@@ -47,32 +74,34 @@ brew_casks=(
 
 for package in "${brew_packages[@]}"; do
     if brew list "$package" &>/dev/null; then
-        echo "✓ $package already installed"
+        ok "$package"
     else
-        echo "Installing $package..."
-        brew install "$package"
+        info "Installing $package..."
+        quiet brew install "$package" || fail "Failed to install $package"
+        ok "$package"
     fi
 done
 
 for cask in "${brew_casks[@]}"; do
     if brew list --cask "$cask" &>/dev/null; then
-        echo "✓ $cask already installed"
+        ok "$cask"
     else
-        echo "Installing $cask..."
-        brew install --cask "$cask"
+        info "Installing $cask..."
+        quiet brew install --cask "$cask" || fail "Failed to install $cask"
+        ok "$cask"
     fi
 done
 
 # ──────────────────────────────────────────────
-# Oh My Zsh + Plugins + Themes Installation
-# ──────────────────────────────────────────────
+
+section "Shell (Oh My Zsh)"
 
 if [ -d "$HOME/.oh-my-zsh" ]; then
-    echo "✓ Oh My Zsh already installed"
+    ok "Oh My Zsh"
 else
-    echo "Installing Oh My Zsh..."
-    # '--unattended' skips the interactive prompts
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    info "Installing Oh My Zsh..."
+    quiet sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    ok "Oh My Zsh"
 fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
@@ -91,112 +120,111 @@ zsh_plugin_urls=(
     "https://github.com/fdellwing/zsh-bat.git"
 )
 
-# Plugin installations
 for idx in $(seq 0 $((${#zsh_plugin_names[@]} - 1))); do
     plugin_name=${zsh_plugin_names[$idx]}
     plugin_url=${zsh_plugin_urls[$idx]}
     plugin_dir="$ZSH_CUSTOM/plugins/$plugin_name"
     if [ -d "$plugin_dir" ]; then
-        echo "✓ zsh plugin '$plugin_name' already installed"
+        ok "plugin: $plugin_name"
     else
-        echo "Installing zsh plugin '$plugin_name'..."
-        git clone "${plugin_url}" "$plugin_dir"
+        info "Installing $plugin_name..."
+        quiet git clone "$plugin_url" "$plugin_dir" || fail "Failed to clone $plugin_name"
+        ok "plugin: $plugin_name"
     fi
 done
 
-
-# Theme installation
 theme_name="powerlevel10k"
 theme_dir="$ZSH_CUSTOM/themes/$theme_name"
 theme_url="https://github.com/romkatv/powerlevel10k.git"
 if [ -d "$theme_dir" ]; then
-    echo "✓ zsh theme '$theme_name' already installed"
+    ok "theme: $theme_name"
 else
-    echo "Installing zsh theme '$theme_name'..."
-    git clone "${theme_url}" "$theme_dir"
+    info "Installing $theme_name..."
+    quiet git clone "$theme_url" "$theme_dir" || fail "Failed to clone $theme_name"
+    ok "theme: $theme_name"
 fi
 
 # ──────────────────────────────────────────────
-# TPM (Tmux Plugin Manager)
-# ──────────────────────────────────────────────
+
+section "Tmux"
 
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 if [ -d "$TPM_DIR" ]; then
-    echo "✓ TPM already installed"
+    ok "TPM"
 else
-    echo "Installing TPM..."
-    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+    info "Installing TPM..."
+    quiet git clone https://github.com/tmux-plugins/tpm "$TPM_DIR" || fail "Failed to clone TPM"
+    ok "TPM"
 fi
 
 # ──────────────────────────────────────────────
-# Git Submodules
+
+section "Git Submodules"
+
+info "Initializing submodules..."
+quiet git -C "$DOTFILES" submodule update --init --recursive
+ok "Submodules ready"
+
 # ──────────────────────────────────────────────
 
-echo "Initializing git submodules..."
-git -C "$DOTFILES" submodule update --init --recursive
+section "Symlinks"
 
-# ──────────────────────────────────────────────
-# Setup Symlinks
-# ──────────────────────────────────────────────
-
-# Backup directory for existing configs
 mkdir -p "$BACKUP_DIR"
 
 create_symlink() {
     local source=$1
     local target=$2
+    local name
+    name=$(basename "$target")
 
-    # '-L' checks if path is a symlink
     if [ -L "$target" ]; then
         current_link=$(readlink "$target")
         if [ "$current_link" = "$source" ]; then
-            echo "✓ $target already linked correctly"
+            ok "$name"
             return
         else
-            echo "Removing incorrect symlink: $target → $current_link"
+            warn "$name -> $current_link (incorrect, replacing)"
             rm "$target"
         fi
-    # '-e' checks if path exists (file or directory)
     elif [ -e "$target" ]; then
-        # '$(date +%Y%m%d_%H%M%S)' generates a timestamp: 20260202_143022
-        backup_name="$(basename "$target").$(date +%Y%m%d_%H%M%S)"
-
-        # Special handling for .zshrc — ask the user
-        read -r -p "$target exists. Backup and replace? (y/n): " answer
-            if [ "$answer" != "y" ]; then
-                echo "Skipping $target"
-                return
-            fi
-
-        echo "Backing up $target → $BACKUP_DIR/$backup_name"
+        backup_name="$name.$(date +%Y%m%d_%H%M%S)"
+        echo ""
+        echo -e "  ${YELLOW}$target${NC} already exists."
+        read -r -p "  Backup and replace? (y/n): " answer
+        if [ "$answer" != "y" ]; then
+            warn "$name (skipped)"
+            return
+        fi
         mv "$target" "$BACKUP_DIR/$backup_name"
+        info "Backed up to $BACKUP_DIR/$backup_name"
     fi
 
     ln -s "$source" "$target"
+    ok "$name -> $source"
 }
 
-# Call the function for each config
 create_symlink "$DOTFILES/.zshrc" "$HOME/.zshrc"
 create_symlink "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES/.aerospace.toml" "$HOME/.aerospace.toml"
 create_symlink "$DOTFILES/.config/nvim" "$HOME/.config/nvim"
 
 # ──────────────────────────────────────────────
-# Plugin Installations
-# ──────────────────────────────────────────────
 
-# Install tmux plugins via TPM
-echo "Installing tmux plugins..."
-# Check the script exists before running it
+section "Post-install"
+
 if [ -f "$TPM_DIR/bin/install_plugins" ]; then
-    "$TPM_DIR/bin/install_plugins"
+    info "Installing tmux plugins..."
+    quiet "$TPM_DIR/bin/install_plugins" || warn "TPM plugin install had issues"
+    ok "Tmux plugins"
 fi
 
-# Trigger lazy.nvim plugin install (headless = no UI)
-echo "Installing nvim plugins..."
-nvim --headless "+Lazy! sync" +qa
+info "Installing nvim plugins..."
+quiet nvim --headless "+Lazy! sync" +qa || warn "Nvim plugin install had issues"
+ok "Nvim plugins"
+
+# ──────────────────────────────────────────────
 
 echo ""
-echo "════════════════════════════════════════════"
-echo "  Setup complete! Restart your terminal."
-echo "════════════════════════════════════════════"
+echo -e "${DIM}────────────────────────────────────────${NC}"
+echo -e "  ${GREEN}[done]${NC} ${BOLD}Setup complete.${NC} Restart your terminal."
+echo ""
