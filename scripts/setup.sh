@@ -162,13 +162,11 @@ create_symlink() {
         backup_name="$(basename "$target").$(date +%Y%m%d_%H%M%S)"
 
         # Special handling for .zshrc — ask the user
-        if [ "$(basename "$target")" = ".zshrc" ]; then
-            read -r -p "$target exists. Backup and replace? (y/n): " answer
+        read -r -p "$target exists. Backup and replace? (y/n): " answer
             if [ "$answer" != "y" ]; then
                 echo "Skipping $target"
                 return
             fi
-        fi
 
         echo "Backing up $target → $BACKUP_DIR/$backup_name"
         mv "$target" "$BACKUP_DIR/$backup_name"
