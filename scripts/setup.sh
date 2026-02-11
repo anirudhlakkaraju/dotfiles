@@ -109,7 +109,7 @@ done
 theme_name="powerlevel10k"
 theme_dir="$ZSH_CUSTOM/themes/$theme_name"
 theme_url="https://github.com/romkatv/powerlevel10k.git"
-if [-d "$theme_dir" ]; then
+if [ -d "$theme_dir" ]; then
     echo "✓ zsh theme '$theme_name' already installed"
 else
     echo "Installing zsh theme '$theme_name'..."
