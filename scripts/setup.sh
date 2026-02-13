@@ -177,19 +177,24 @@ create_symlink() {
     local name
     name=$(basename "$target")
 
+    # Already linked correctly — skip silently
     if [ -L "$target" ]; then
         current_link=$(readlink "$target")
         if [ "$current_link" = "$source" ]; then
             ok "$name"
             return
         else
-            warn "$name -> $current_link (incorrect, replacing)"
+            echo -e "  ${YELLOW}$name${NC} points to ${DIM}$current_link${NC} (expected ${DIM}$source${NC})"
+            read -r -p "  Replace symlink? (y/n): " answer
+            if [ "$answer" != "y" ]; then
+                warn "$name (skipped)"
+                return
+            fi
             rm "$target"
         fi
     elif [ -e "$target" ]; then
         backup_name="$name.$(date +%Y%m%d_%H%M%S)"
-        echo ""
-        echo -e "  ${YELLOW}$target${NC} already exists."
+        echo -e "  ${YELLOW}$name${NC} already exists as a file/directory."
         read -r -p "  Backup and replace? (y/n): " answer
         if [ "$answer" != "y" ]; then
             warn "$name (skipped)"
@@ -197,6 +202,13 @@ create_symlink() {
         fi
         mv "$target" "$BACKUP_DIR/$backup_name"
         info "Backed up to $BACKUP_DIR/$backup_name"
+    else
+        echo -e "  ${DIM}$name${NC} not found."
+        read -r -p "  Create symlink? (y/n): " answer
+        if [ "$answer" != "y" ]; then
+            warn "$name (skipped)"
+            return
+        fi
     fi
 
     ln -s "$source" "$target"
