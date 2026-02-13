@@ -14,9 +14,6 @@ export ZSH="$HOME/.oh-my-zsh"
 export GOBIN=$HOME/go/bin
 export PATH=$GOBIN:$PATH
 
-# PATH to ghostty config
-export PATH=$HOME/Library/Application\ Support/com.mitchellh.ghostty/config
-
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(
