@@ -35,3 +35,6 @@ id_dsa.pub
 # Other hidden files you don’t want in version control
 .cache/
 *.pyc
+
+# Ignore any backed up configs
+backups/
