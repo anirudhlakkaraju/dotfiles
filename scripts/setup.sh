@@ -36,6 +36,18 @@ quiet() {
 }
 
 # ──────────────────────────────────────────────
+# Pre-Flight
+# ──────────────────────────────────────────────
+
+echo ""
+echo -e "  ${BOLD}This script will:${NC}"
+echo -e "  ${DIM}- Install brew packages (neovim, tmux, fzf, ripgrep, fd)${NC}"
+echo -e "  ${DIM}- Install aerospace (tiling window manager)${NC}"
+echo -e "  ${DIM}- Install Oh My Zsh + plugins + powerlevel10k theme${NC}"
+echo -e "  ${DIM}- Install TPM (tmux plugin manager)${NC}"
+echo -e "  ${DIM}- Create symlinks for configs${NC}"
+echo -e "  ${DIM}- Install tmux and nvim plugins${NC}"
+echo ""
 
 section "Pre-flight"
 
@@ -56,6 +68,8 @@ fi
 
 mkdir -p "$HOME/.config"
 
+# ──────────────────────────────────────────────
+# Package Installations
 # ──────────────────────────────────────────────
 
 section "Package Installations"
@@ -92,6 +106,8 @@ for cask in "${brew_casks[@]}"; do
     fi
 done
 
+# ──────────────────────────────────────────────
+# Shell (oh-my-zsh)
 # ──────────────────────────────────────────────
 
 section "Shell (Oh My Zsh)"
@@ -145,6 +161,8 @@ else
 fi
 
 # ──────────────────────────────────────────────
+# Tmux
+# ──────────────────────────────────────────────
 
 section "Tmux"
 
@@ -158,6 +176,8 @@ else
 fi
 
 # ──────────────────────────────────────────────
+# Git Submodules
+# ──────────────────────────────────────────────
 
 section "Git Submodules"
 
@@ -165,6 +185,8 @@ info "Initializing submodules..."
 quiet git -C "$DOTFILES" submodule update --init --recursive
 ok "Submodules ready"
 
+# ──────────────────────────────────────────────
+# Symlinks Setup
 # ──────────────────────────────────────────────
 
 section "Symlinks"
@@ -221,8 +243,10 @@ create_symlink "$DOTFILES/.aerospace.toml" "$HOME/.aerospace.toml"
 create_symlink "$DOTFILES/.config/nvim" "$HOME/.config/nvim"
 
 # ──────────────────────────────────────────────
+# Plugins
+# ──────────────────────────────────────────────
 
-section "Post-install"
+section "Plugins"
 
 if [ -f "$TPM_DIR/bin/install_plugins" ]; then
     info "Installing tmux plugins..."
